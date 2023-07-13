@@ -1,0 +1,31 @@
+
+syntax = "proto3";
+
+// The package name determines the name of the directories that truss creates
+package blockchain;
+
+import "github.com/metaverse/truss/deftree/googlethirdparty/annotations.proto";
+
+service Blockchain {
+  // Echo "echos" the incoming string
+  rpc Echo (EchoRequest) returns (EchoResponse) {
+    option (google.api.http) = {
+      // All fields (In) are query parameters of the http request unless otherwise specified
+      get: "/echo"
+
+      additional_bindings {
+        // Trailing slashes are different routes
+        get: "/echo/"
+      }
+    };
+  }
+}
+
+message EchoRequest {
+  string In = 1;
+}
+
+
+message EchoResponse {
+  string Out = 1;
+}
