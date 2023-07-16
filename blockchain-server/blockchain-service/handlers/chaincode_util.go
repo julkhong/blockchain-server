@@ -6,6 +6,10 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path"
+	"time"
+
 	"github.com/hyperledger/fabric-gateway/pkg/client"
 	"github.com/hyperledger/fabric-gateway/pkg/identity"
 	"github.com/hyperledger/fabric-protos-go-apiv2/gateway"
@@ -13,14 +17,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
-	"os"
-	"path"
-	"time"
 )
 
 const (
 	mspID        = "Org1MSP"
-	cryptoPath   = "../../test-network/organizations/peerOrganizations/org1.example.com"
+	cryptoPath   = "/home/julkhong/go/src/github.com/julkhong/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com"
 	certPath     = cryptoPath + "/users/User1@org1.example.com/msp/signcerts/cert.pem"
 	keyPath      = cryptoPath + "/users/User1@org1.example.com/msp/keystore/"
 	tlsCertPath  = cryptoPath + "/peers/peer0.org1.example.com/tls/ca.crt"
@@ -70,6 +71,8 @@ func ContractSetup() {
 	network := gw.GetNetwork(channelName)
 	contract := network.GetContract(chaincodeName)
 	InvokedContract = *contract
+	InitAccounts(contract)
+	Send(contract, "acc1", "acc2", "1")
 }
 
 // newGrpcConnection creates a gRPC connection to the Gateway server.

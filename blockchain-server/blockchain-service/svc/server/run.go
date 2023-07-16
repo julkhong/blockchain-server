@@ -15,7 +15,7 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"os"
-
+	"google.golang.org/grpc/reflection"
 	// 3d Party
 	"google.golang.org/grpc"
 	pb "github.com/julkhong/blockchain/blockchain-server"
@@ -116,6 +116,7 @@ func Run(cfg svc.Config) {
 
 		srv := svc.MakeGRPCServer(endpoints)
 		s := grpc.NewServer()
+		reflection.Register(s)
 		pb.RegisterBlockchainServer(s, srv)
 
 		errc <- s.Serve(ln)
