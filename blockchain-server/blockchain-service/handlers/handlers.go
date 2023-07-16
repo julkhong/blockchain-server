@@ -23,6 +23,7 @@ func (s blockchainService) Echo(ctx context.Context, in *pb.EchoRequest) (*pb.Ec
 
 func (s blockchainService) Send(ctx context.Context, in *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
 	ContractSetup()
+	InitAccounts(&InvokedContract)
 	var resp pb.ChainCodeResponse
 	req := in
 	//if req.Params.ReceiverID == "" {
@@ -46,6 +47,7 @@ func (s blockchainService) Send(ctx context.Context, in *pb.ChainCodeRequest) (*
 
 func (s blockchainService) Balance(ctx context.Context, in *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
 	ContractSetup()
+	InitAccounts(&InvokedContract)
 	var resp pb.ChainCodeResponse
 	req := in
 	//if req.Params.AccountID == "" {
