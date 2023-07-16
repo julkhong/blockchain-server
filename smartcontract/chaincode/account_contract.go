@@ -3,6 +3,7 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
@@ -20,7 +21,7 @@ type Account struct {
 }
 
 // Init initializes an account
-func (a *AmountTransferContract) Init(ctx TransactionContextInterface, publicKey string, amount uint64) (string, error) {
+func (a *AmountTransferContract) Init(ctx contractapi.TransactionContextInterface, publicKey string, amount uint64) (string, error) {
 	uniqueID := uuid.New()
 	accountID := uniqueID.String()
 	newAccount := Account{
@@ -39,8 +40,33 @@ func (a *AmountTransferContract) Init(ctx TransactionContextInterface, publicKey
 	return accountID, nil
 }
 
+func (a *AmountTransferContract) InitAccounts(ctx contractapi.TransactionContextInterface) error {
+	accounts := []Account{
+		{ID: "acc1", Balance: 100, PublicKey: "key1"},
+		{ID: "acc2", Balance: 100, PublicKey: "key2"},
+		{ID: "acc3", Balance: 100, PublicKey: "key3"},
+		{ID: "acc4", Balance: 100, PublicKey: "key4"},
+		{ID: "acc5", Balance: 100, PublicKey: "key5"},
+		{ID: "acc6", Balance: 100, PublicKey: "key6"},
+	}
+
+	for _, asset := range accounts {
+		assetJSON, err := json.Marshal(asset)
+		if err != nil {
+			return fmt.Errorf("failed to serialize new account: %w", err)
+		}
+
+		err = ctx.GetStub().PutState(asset.ID, assetJSON)
+		if err != nil {
+			return fmt.Errorf("failed to put new account state: %w", err)
+		}
+	}
+
+	return nil
+}
+
 // Send transfers amount from sender to a receiver
-func (a *AmountTransferContract) Send(ctx TransactionContextInterface, senderID, receiverID string, amount uint64) error {
+func (a *AmountTransferContract) Send(ctx contractapi.TransactionContextInterface, senderID, receiverID string, amount uint64) error {
 	senderJSON, err := ctx.GetStub().GetState(senderID)
 	if err != nil {
 		return fmt.Errorf("failed to read sender account from the world state: %w", err)
@@ -94,13 +120,13 @@ func (a *AmountTransferContract) Send(ctx TransactionContextInterface, senderID,
 	return nil
 }
 
-func (a *AmountTransferContract) GetBalance(ctx TransactionContextInterface, accountID string) (uint64, error) {
+func (a *AmountTransferContract) GetBalance(ctx contractapi.TransactionContextInterface, accountID string) (uint64, error) {
 	accountJSON, err := ctx.GetStub().GetState(accountID)
 	if err != nil {
 		return 0, fmt.Errorf("failed to read account from the world state: %w", err)
 	}
 	if accountJSON == nil {
-		return 0, fmt.Errorf("asset with ID %s does not exist", accountID)
+		return 0, fmt.Errorf("account with ID %s does not exist", accountID)
 	}
 
 	account := new(Account)
