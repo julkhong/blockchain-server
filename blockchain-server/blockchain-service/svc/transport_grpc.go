@@ -27,7 +27,7 @@ func MakeGRPCServer(endpoints Endpoints, options ...grpctransport.ServerOption) 
 	}
 	serverOptions = append(serverOptions, options...)
 	return &grpcServer{
-		// blockchain
+		// blockchain-server
 
 		echo: grpctransport.NewServer(
 			endpoints.EchoEndpoint,

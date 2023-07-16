@@ -39,7 +39,7 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.BlockchainServer, e
 	{
 		echoEndpoint = grpctransport.NewClient(
 			conn,
-			"blockchain.Blockchain",
+			"blockchain-server.Blockchain",
 			"Echo",
 			EncodeGRPCEchoRequest,
 			DecodeGRPCEchoResponse,
@@ -52,7 +52,7 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.BlockchainServer, e
 	{
 		sendEndpoint = grpctransport.NewClient(
 			conn,
-			"blockchain.Blockchain",
+			"blockchain-server.Blockchain",
 			"Send",
 			EncodeGRPCSendRequest,
 			DecodeGRPCSendResponse,
@@ -65,7 +65,7 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.BlockchainServer, e
 	{
 		balanceEndpoint = grpctransport.NewClient(
 			conn,
-			"blockchain.Blockchain",
+			"blockchain-server.Blockchain",
 			"Balance",
 			EncodeGRPCBalanceRequest,
 			DecodeGRPCBalanceResponse,
