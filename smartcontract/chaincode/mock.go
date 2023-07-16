@@ -1,4 +1,4 @@
-package smartcontract
+package chaincode
 
 import "github.com/pkg/errors"
 
