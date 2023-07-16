@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/julkhong/blockchain-server/blockchain-service/svc"
+	"github.com/julkhong/blockchain/blockchain-server/blockchain-service/svc"
 	"os"
 	"os/signal"
 	"syscall"

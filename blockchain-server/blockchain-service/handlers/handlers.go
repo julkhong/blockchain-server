@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
-	pb "github.com/julkhong/blockchain-server"
+	pb "github.com/julkhong/blockchain/blockchain-server"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"math"

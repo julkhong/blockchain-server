@@ -8,8 +8,8 @@ package server
 import (
 	"flag"
 	"fmt"
-	"github.com/julkhong/blockchain-server/blockchain-service/handlers"
-	"github.com/julkhong/blockchain-server/blockchain-service/svc"
+	"github.com/julkhong/blockchain/blockchain-server/blockchain-service/handlers"
+	"github.com/julkhong/blockchain/blockchain-server/blockchain-service/svc"
 	"log"
 	"net"
 	"net/http"
@@ -19,7 +19,7 @@ import (
 	// 3d Party
 	"google.golang.org/grpc"
 
-	pb "github.com/julkhong/blockchain-server"
+	pb "github.com/julkhong/blockchain/blockchain-server"
 )
 
 var DefaultConfig svc.Config

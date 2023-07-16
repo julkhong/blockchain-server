@@ -31,7 +31,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 
 	// This service
-	pb "github.com/julkhong/blockchain-server"
+	pb "github.com/julkhong/blockchain/blockchain-server"
 )
 
 const contentType = "application/json; charset=utf-8"

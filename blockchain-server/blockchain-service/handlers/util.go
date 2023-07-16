@@ -9,7 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"fmt"
-	pb "github.com/julkhong/blockchain-server"
+	pb "github.com/julkhong/blockchain/blockchain-server"
 	log "github.com/sirupsen/logrus"
 )
 

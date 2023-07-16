@@ -8,7 +8,7 @@ package grpc
 
 import (
 	"context"
-	"github.com/julkhong/blockchain-server/blockchain-service/svc"
+	"github.com/julkhong/blockchain/blockchain-server/blockchain-service/svc"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -16,7 +16,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 
-	pb "github.com/julkhong/blockchain-server"
+	pb "github.com/julkhong/blockchain/blockchain-server"
 )
 
 // New returns an service backed by a gRPC client connection. It is the

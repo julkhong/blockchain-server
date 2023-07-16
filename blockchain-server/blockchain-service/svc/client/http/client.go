@@ -11,7 +11,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/julkhong/blockchain-server/blockchain-service/svc"
+	"github.com/julkhong/blockchain/blockchain-server/blockchain-service/svc"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -24,7 +24,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/pkg/errors"
 
-	pb "github.com/julkhong/blockchain-server"
+	pb "github.com/julkhong/blockchain/blockchain-server"
 )
 
 var (

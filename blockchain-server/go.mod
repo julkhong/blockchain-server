@@ -1,4 +1,4 @@
-module github.com/julkhong/blockchain-server
+module github.com/julkhong/blockchain/blockchain-server
 
 go 1.18
 

@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	pb "github.com/julkhong/blockchain-server"
-	"github.com/julkhong/blockchain-server/blockchain-service/svc"
+	pb "github.com/julkhong/blockchain/blockchain-server"
+	"github.com/julkhong/blockchain/blockchain-server/blockchain-service/svc"
 )
 
 // WrapEndpoints accepts the service's entire collection of endpoints, so that a
