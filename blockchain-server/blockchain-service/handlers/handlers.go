@@ -21,7 +21,7 @@ func (s blockchainService) Echo(ctx context.Context, in *pb.EchoRequest) (*pb.Ec
 	return &resp, nil
 }
 
-func (s blockchainService) Send(ctx context.Context, in *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
+func (s blockchainService) SendBalance(ctx context.Context, in *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
 	ContractSetup()
 	InitAccounts(&InvokedContract)
 	var resp pb.ChainCodeResponse
@@ -45,7 +45,7 @@ func (s blockchainService) Send(ctx context.Context, in *pb.ChainCodeRequest) (*
 	return &resp, nil
 }
 
-func (s blockchainService) Balance(ctx context.Context, in *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
+func (s blockchainService) GetBalance(ctx context.Context, in *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
 	ContractSetup()
 	InitAccounts(&InvokedContract)
 	var resp pb.ChainCodeResponse

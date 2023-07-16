@@ -27,7 +27,7 @@ func MakeGRPCServer(endpoints Endpoints, options ...grpctransport.ServerOption) 
 	}
 	serverOptions = append(serverOptions, options...)
 	return &grpcServer{
-		// blockchain-server
+		// blockchain
 
 		echo: grpctransport.NewServer(
 			endpoints.EchoEndpoint,
@@ -35,16 +35,16 @@ func MakeGRPCServer(endpoints Endpoints, options ...grpctransport.ServerOption) 
 			EncodeGRPCEchoResponse,
 			serverOptions...,
 		),
-		send: grpctransport.NewServer(
-			endpoints.SendEndpoint,
-			DecodeGRPCSendRequest,
-			EncodeGRPCSendResponse,
+		sendbalance: grpctransport.NewServer(
+			endpoints.SendBalanceEndpoint,
+			DecodeGRPCSendBalanceRequest,
+			EncodeGRPCSendBalanceResponse,
 			serverOptions...,
 		),
-		balance: grpctransport.NewServer(
-			endpoints.BalanceEndpoint,
-			DecodeGRPCBalanceRequest,
-			EncodeGRPCBalanceResponse,
+		getbalance: grpctransport.NewServer(
+			endpoints.GetBalanceEndpoint,
+			DecodeGRPCGetBalanceRequest,
+			EncodeGRPCGetBalanceResponse,
 			serverOptions...,
 		),
 	}
@@ -52,9 +52,9 @@ func MakeGRPCServer(endpoints Endpoints, options ...grpctransport.ServerOption) 
 
 // grpcServer implements the BlockchainServer interface
 type grpcServer struct {
-	echo    grpctransport.Handler
-	send    grpctransport.Handler
-	balance grpctransport.Handler
+	echo        grpctransport.Handler
+	sendbalance grpctransport.Handler
+	getbalance  grpctransport.Handler
 }
 
 // Methods for grpcServer to implement BlockchainServer interface
@@ -67,16 +67,16 @@ func (s *grpcServer) Echo(ctx context.Context, req *pb.EchoRequest) (*pb.EchoRes
 	return rep.(*pb.EchoResponse), nil
 }
 
-func (s *grpcServer) Send(ctx context.Context, req *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
-	_, rep, err := s.send.ServeGRPC(ctx, req)
+func (s *grpcServer) SendBalance(ctx context.Context, req *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
+	_, rep, err := s.sendbalance.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 	return rep.(*pb.ChainCodeResponse), nil
 }
 
-func (s *grpcServer) Balance(ctx context.Context, req *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
-	_, rep, err := s.balance.ServeGRPC(ctx, req)
+func (s *grpcServer) GetBalance(ctx context.Context, req *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
+	_, rep, err := s.getbalance.ServeGRPC(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -92,16 +92,16 @@ func DecodeGRPCEchoRequest(_ context.Context, grpcReq interface{}) (interface{},
 	return req, nil
 }
 
-// DecodeGRPCSendRequest is a transport/grpc.DecodeRequestFunc that converts a
-// gRPC send request to a user-domain send request. Primarily useful in a server.
-func DecodeGRPCSendRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+// DecodeGRPCSendBalanceRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC sendbalance request to a user-domain sendbalance request. Primarily useful in a server.
+func DecodeGRPCSendBalanceRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(*pb.ChainCodeRequest)
 	return req, nil
 }
 
-// DecodeGRPCBalanceRequest is a transport/grpc.DecodeRequestFunc that converts a
-// gRPC balance request to a user-domain balance request. Primarily useful in a server.
-func DecodeGRPCBalanceRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+// DecodeGRPCGetBalanceRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC getbalance request to a user-domain getbalance request. Primarily useful in a server.
+func DecodeGRPCGetBalanceRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
 	req := grpcReq.(*pb.ChainCodeRequest)
 	return req, nil
 }
@@ -115,16 +115,16 @@ func EncodeGRPCEchoResponse(_ context.Context, response interface{}) (interface{
 	return resp, nil
 }
 
-// EncodeGRPCSendResponse is a transport/grpc.EncodeResponseFunc that converts a
-// user-domain send response to a gRPC send reply. Primarily useful in a server.
-func EncodeGRPCSendResponse(_ context.Context, response interface{}) (interface{}, error) {
+// EncodeGRPCSendBalanceResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain sendbalance response to a gRPC sendbalance reply. Primarily useful in a server.
+func EncodeGRPCSendBalanceResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(*pb.ChainCodeResponse)
 	return resp, nil
 }
 
-// EncodeGRPCBalanceResponse is a transport/grpc.EncodeResponseFunc that converts a
-// user-domain balance response to a gRPC balance reply. Primarily useful in a server.
-func EncodeGRPCBalanceResponse(_ context.Context, response interface{}) (interface{}, error) {
+// EncodeGRPCGetBalanceResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain getbalance response to a gRPC getbalance reply. Primarily useful in a server.
+func EncodeGRPCGetBalanceResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(*pb.ChainCodeResponse)
 	return resp, nil
 }

@@ -24,6 +24,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/pkg/errors"
 
+	// This Service
 	pb "github.com/julkhong/blockchain/blockchain-server"
 )
 
@@ -60,31 +61,31 @@ func New(instance string, options ...httptransport.ClientOption) (pb.BlockchainS
 			options...,
 		).Endpoint()
 	}
-	var SendZeroEndpoint endpoint.Endpoint
+	var SendBalanceZeroEndpoint endpoint.Endpoint
 	{
-		SendZeroEndpoint = httptransport.NewClient(
+		SendBalanceZeroEndpoint = httptransport.NewClient(
 			"POST",
-			copyURL(u, "/send"),
-			EncodeHTTPSendZeroRequest,
-			DecodeHTTPSendResponse,
+			copyURL(u, "/balance"),
+			EncodeHTTPSendBalanceZeroRequest,
+			DecodeHTTPSendBalanceResponse,
 			options...,
 		).Endpoint()
 	}
-	var BalanceZeroEndpoint endpoint.Endpoint
+	var GetBalanceZeroEndpoint endpoint.Endpoint
 	{
-		BalanceZeroEndpoint = httptransport.NewClient(
+		GetBalanceZeroEndpoint = httptransport.NewClient(
 			"GET",
 			copyURL(u, "/balance/"),
-			EncodeHTTPBalanceZeroRequest,
-			DecodeHTTPBalanceResponse,
+			EncodeHTTPGetBalanceZeroRequest,
+			DecodeHTTPGetBalanceResponse,
 			options...,
 		).Endpoint()
 	}
 
 	return svc.Endpoints{
-		EchoEndpoint:    EchoZeroEndpoint,
-		SendEndpoint:    SendZeroEndpoint,
-		BalanceEndpoint: BalanceZeroEndpoint,
+		EchoEndpoint:        EchoZeroEndpoint,
+		SendBalanceEndpoint: SendBalanceZeroEndpoint,
+		GetBalanceEndpoint:  GetBalanceZeroEndpoint,
 	}, nil
 }
 
@@ -138,12 +139,12 @@ func DecodeHTTPEchoResponse(_ context.Context, r *http.Response) (interface{}, e
 	return &resp, nil
 }
 
-// DecodeHTTPSendResponse is a transport/http.DecodeResponseFunc that decodes
+// DecodeHTTPSendBalanceResponse is a transport/http.DecodeResponseFunc that decodes
 // a JSON-encoded ChainCodeResponse response from the HTTP response body.
 // If the response has a non-200 status code, we will interpret that as an
 // error and attempt to decode the specific error message from the response
 // body. Primarily useful in a client.
-func DecodeHTTPSendResponse(_ context.Context, r *http.Response) (interface{}, error) {
+func DecodeHTTPSendBalanceResponse(_ context.Context, r *http.Response) (interface{}, error) {
 	defer r.Body.Close()
 	buf, err := ioutil.ReadAll(r.Body)
 	if err == io.EOF {
@@ -165,12 +166,12 @@ func DecodeHTTPSendResponse(_ context.Context, r *http.Response) (interface{}, e
 	return &resp, nil
 }
 
-// DecodeHTTPBalanceResponse is a transport/http.DecodeResponseFunc that decodes
+// DecodeHTTPGetBalanceResponse is a transport/http.DecodeResponseFunc that decodes
 // a JSON-encoded ChainCodeResponse response from the HTTP response body.
 // If the response has a non-200 status code, we will interpret that as an
 // error and attempt to decode the specific error message from the response
 // body. Primarily useful in a client.
-func DecodeHTTPBalanceResponse(_ context.Context, r *http.Response) (interface{}, error) {
+func DecodeHTTPGetBalanceResponse(_ context.Context, r *http.Response) (interface{}, error) {
 	defer r.Body.Close()
 	buf, err := ioutil.ReadAll(r.Body)
 	if err == io.EOF {
@@ -283,10 +284,10 @@ func EncodeHTTPEchoOneRequest(_ context.Context, r *http.Request, request interf
 	return nil
 }
 
-// EncodeHTTPSendZeroRequest is a transport/http.EncodeRequestFunc
-// that encodes a send request into the various portions of
+// EncodeHTTPSendBalanceZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a sendbalance request into the various portions of
 // the http request (path, query, and body).
-func EncodeHTTPSendZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+func EncodeHTTPSendBalanceZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
 	strval := ""
 	_ = strval
 	req := request.(*pb.ChainCodeRequest)
@@ -298,7 +299,7 @@ func EncodeHTTPSendZeroRequest(_ context.Context, r *http.Request, request inter
 	// Set the path parameters
 	path := strings.Join([]string{
 		"",
-		"send",
+		"balance",
 	}, "/")
 	u, err := url.Parse(path)
 	if err != nil {
@@ -340,10 +341,10 @@ func EncodeHTTPSendZeroRequest(_ context.Context, r *http.Request, request inter
 	return nil
 }
 
-// EncodeHTTPBalanceZeroRequest is a transport/http.EncodeRequestFunc
-// that encodes a balance request into the various portions of
+// EncodeHTTPGetBalanceZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a getbalance request into the various portions of
 // the http request (path, query, and body).
-func EncodeHTTPBalanceZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+func EncodeHTTPGetBalanceZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
 	strval := ""
 	_ = strval
 	req := request.(*pb.ChainCodeRequest)
@@ -389,10 +390,10 @@ func EncodeHTTPBalanceZeroRequest(_ context.Context, r *http.Request, request in
 	return nil
 }
 
-// EncodeHTTPBalanceOneRequest is a transport/http.EncodeRequestFunc
-// that encodes a balance request into the various portions of
+// EncodeHTTPGetBalanceOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a getbalance request into the various portions of
 // the http request (path, query, and body).
-func EncodeHTTPBalanceOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+func EncodeHTTPGetBalanceOneRequest(_ context.Context, r *http.Request, request interface{}) error {
 	strval := ""
 	_ = strval
 	req := request.(*pb.ChainCodeRequest)

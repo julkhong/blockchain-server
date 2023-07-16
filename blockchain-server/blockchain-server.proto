@@ -20,13 +20,13 @@ service Blockchain {
       }
     };
   }
-  rpc Send (ChainCodeRequest) returns (ChainCodeResponse) {
+  rpc sendBalance (ChainCodeRequest) returns (ChainCodeResponse) {
     option (google.api.http) = {
       // All fields (In) are query parameters of the http request unless otherwise specified
-      post: "/send"
+      post: "/balance"
     };
   }
-  rpc Balance (ChainCodeRequest) returns (ChainCodeResponse) {
+  rpc getBalance (ChainCodeRequest) returns (ChainCodeResponse) {
     option (google.api.http) = {
       // All fields (In) are query parameters of the http request unless otherwise specified
       get: "/balance"

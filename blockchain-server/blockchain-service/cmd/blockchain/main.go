@@ -7,14 +7,12 @@ package main
 
 import (
 	"flag"
-	//"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/julkhong/blockchain/blockchain-server/blockchain-service/handlers"
-	//"github.com/julkhong/blockchain-server/blockchain-service/logic"
 	"github.com/julkhong/blockchain/blockchain-server/blockchain-service/svc/server"
-	//log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	// Update addresses if they have been overwritten by flags
 	flag.Parse()
 
 	cfg := server.DefaultConfig

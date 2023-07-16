@@ -76,22 +76,22 @@ func MakeHTTPHandler(endpoints Endpoints, responseEncoder httptransport.EncodeRe
 				serverOptions...,
 			))
 		
-			m.Methods("POST").Path("/send").Handler(httptransport.NewServer(
-				endpoints.SendEndpoint,
-				DecodeHTTPSendZeroRequest,
+			m.Methods("POST").Path("/balance").Handler(httptransport.NewServer(
+				endpoints.SendBalanceEndpoint,
+				DecodeHTTPSendBalanceZeroRequest,
 				responseEncoder,
 				serverOptions...,
 			))
 		
 			m.Methods("GET").Path("/balance/").Handler(httptransport.NewServer(
-				endpoints.BalanceEndpoint,
-				DecodeHTTPBalanceZeroRequest,
+				endpoints.GetBalanceEndpoint,
+				DecodeHTTPGetBalanceZeroRequest,
 				responseEncoder,
 				serverOptions...,
 			))
 			m.Methods("GET").Path("/balance").Handler(httptransport.NewServer(
-				endpoints.BalanceEndpoint,
-				DecodeHTTPBalanceOneRequest,
+				endpoints.GetBalanceEndpoint,
+				DecodeHTTPGetBalanceOneRequest,
 				responseEncoder,
 				serverOptions...,
 			))
@@ -235,10 +235,10 @@ func DecodeHTTPEchoOneRequest(_ context.Context, r *http.Request) (interface{}, 
 	
 
 	
-		// DecodeHTTPSendZeroRequest is a transport/http.DecodeRequestFunc that
-	// decodes a JSON-encoded send request from the HTTP request
+		// DecodeHTTPSendBalanceZeroRequest is a transport/http.DecodeRequestFunc that
+	// decodes a JSON-encoded sendbalance request from the HTTP request
 	// body. Primarily useful in a server.
-	func DecodeHTTPSendZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	func DecodeHTTPSendBalanceZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
 		defer r.Body.Close()
 		var req pb.ChainCodeRequest
 		buf, err := ioutil.ReadAll(r.Body)
@@ -271,13 +271,13 @@ func DecodeHTTPEchoOneRequest(_ context.Context, r *http.Request) (interface{}, 
 		
 			
 				
-if IdSendStrArr, ok := queryParams["id"]; ok {
-	IdSendStr := IdSendStrArr[0]
-	IdSend, err := strconv.ParseUint(IdSendStr, 10, 32)
+if IdSendBalanceStrArr, ok := queryParams["id"]; ok {
+	IdSendBalanceStr := IdSendBalanceStrArr[0]
+	IdSendBalance, err := strconv.ParseUint(IdSendBalanceStr, 10, 32)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting IdSend from query, queryParams: %v", queryParams))
+		return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting IdSendBalance from query, queryParams: %v", queryParams))
 	}
-	req.Id = uint32(IdSend)
+	req.Id = uint32(IdSendBalance)
 }
 
 
@@ -297,17 +297,16 @@ if TimeStampSendStrArr, ok := queryParams["timeStamp"]; ok && len(TimeStampSendS
 	}
 }
 
-
 			
 		
 			
 				
-if ParamsSendStrArr, ok := queryParams["params"]; ok {
-	ParamsSendStr := ParamsSendStrArr[0]
+if ParamsSendBalanceStrArr, ok := queryParams["params"]; ok {
+	ParamsSendBalanceStr := ParamsSendBalanceStrArr[0]
 
-	err = json.Unmarshal([]byte(ParamsSendStr), req.Params)
+	err = json.Unmarshal([]byte(ParamsSendBalanceStr), req.Params)
 	if err != nil {
-		return nil, errors.Wrapf(err, "couldn't decode ParamsSend from %v", ParamsSendStr)
+		return nil, errors.Wrapf(err, "couldn't decode ParamsSendBalance from %v", ParamsSendBalanceStr)
 	}
 
 }
@@ -315,19 +314,19 @@ if ParamsSendStrArr, ok := queryParams["params"]; ok {
 		
 			
 				
-if KeySendStrArr, ok := queryParams["key"]; ok {
-	KeySendStr := KeySendStrArr[0]
-	KeySend := KeySendStr
-	req.Key = KeySend
+if KeySendBalanceStrArr, ok := queryParams["key"]; ok {
+	KeySendBalanceStr := KeySendBalanceStrArr[0]
+	KeySendBalance := KeySendBalanceStr
+	req.Key = KeySendBalance
 }
 			
 		
 			
 				
-if SignatureSendStrArr, ok := queryParams["signature"]; ok {
-	SignatureSendStr := SignatureSendStrArr[0]
-	SignatureSend := SignatureSendStr
-	req.Signature = SignatureSend
+if SignatureSendBalanceStrArr, ok := queryParams["signature"]; ok {
+	SignatureSendBalanceStr := SignatureSendBalanceStrArr[0]
+	SignatureSendBalance := SignatureSendBalanceStr
+	req.Signature = SignatureSendBalance
 }
 			
 		
@@ -338,10 +337,10 @@ if SignatureSendStrArr, ok := queryParams["signature"]; ok {
 	
 
 	
-		// DecodeHTTPBalanceZeroRequest is a transport/http.DecodeRequestFunc that
-	// decodes a JSON-encoded balance request from the HTTP request
+		// DecodeHTTPGetBalanceZeroRequest is a transport/http.DecodeRequestFunc that
+	// decodes a JSON-encoded getbalance request from the HTTP request
 	// body. Primarily useful in a server.
-	func DecodeHTTPBalanceZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	func DecodeHTTPGetBalanceZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
 		defer r.Body.Close()
 		var req pb.ChainCodeRequest
 		buf, err := ioutil.ReadAll(r.Body)
@@ -374,13 +373,13 @@ if SignatureSendStrArr, ok := queryParams["signature"]; ok {
 		
 			
 				
-if IdBalanceStrArr, ok := queryParams["id"]; ok {
-	IdBalanceStr := IdBalanceStrArr[0]
-	IdBalance, err := strconv.ParseUint(IdBalanceStr, 10, 32)
+if IdGetBalanceStrArr, ok := queryParams["id"]; ok {
+	IdGetBalanceStr := IdGetBalanceStrArr[0]
+	IdGetBalance, err := strconv.ParseUint(IdGetBalanceStr, 10, 32)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting IdBalance from query, queryParams: %v", queryParams))
+		return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting IdGetBalance from query, queryParams: %v", queryParams))
 	}
-	req.Id = uint32(IdBalance)
+	req.Id = uint32(IdGetBalance)
 }
 
 
@@ -399,16 +398,15 @@ if TimeStampSendStrArr, ok := queryParams["timeStamp"]; ok && len(TimeStampSendS
 		Nanos:   int32((TimeStampSend % 1000) * 1e6),   // Convert milliseconds to nanoseconds
 	}
 }
-
 		
 			
 				
-if ParamsBalanceStrArr, ok := queryParams["params"]; ok {
-	ParamsBalanceStr := ParamsBalanceStrArr[0]
+if ParamsGetBalanceStrArr, ok := queryParams["params"]; ok {
+	ParamsGetBalanceStr := ParamsGetBalanceStrArr[0]
 
-	err = json.Unmarshal([]byte(ParamsBalanceStr), req.Params)
+	err = json.Unmarshal([]byte(ParamsGetBalanceStr), req.Params)
 	if err != nil {
-		return nil, errors.Wrapf(err, "couldn't decode ParamsBalance from %v", ParamsBalanceStr)
+		return nil, errors.Wrapf(err, "couldn't decode ParamsGetBalance from %v", ParamsGetBalanceStr)
 	}
 
 }
@@ -416,19 +414,19 @@ if ParamsBalanceStrArr, ok := queryParams["params"]; ok {
 		
 			
 				
-if KeyBalanceStrArr, ok := queryParams["key"]; ok {
-	KeyBalanceStr := KeyBalanceStrArr[0]
-	KeyBalance := KeyBalanceStr
-	req.Key = KeyBalance
+if KeyGetBalanceStrArr, ok := queryParams["key"]; ok {
+	KeyGetBalanceStr := KeyGetBalanceStrArr[0]
+	KeyGetBalance := KeyGetBalanceStr
+	req.Key = KeyGetBalance
 }
 			
 		
 			
 				
-if SignatureBalanceStrArr, ok := queryParams["signature"]; ok {
-	SignatureBalanceStr := SignatureBalanceStrArr[0]
-	SignatureBalance := SignatureBalanceStr
-	req.Signature = SignatureBalance
+if SignatureGetBalanceStrArr, ok := queryParams["signature"]; ok {
+	SignatureGetBalanceStr := SignatureGetBalanceStrArr[0]
+	SignatureGetBalance := SignatureGetBalanceStr
+	req.Signature = SignatureGetBalance
 }
 			
 		
@@ -437,10 +435,10 @@ if SignatureBalanceStrArr, ok := queryParams["signature"]; ok {
 		return &req, err
 	}
 	
-		// DecodeHTTPBalanceOneRequest is a transport/http.DecodeRequestFunc that
-	// decodes a JSON-encoded balance request from the HTTP request
+		// DecodeHTTPGetBalanceOneRequest is a transport/http.DecodeRequestFunc that
+	// decodes a JSON-encoded getbalance request from the HTTP request
 	// body. Primarily useful in a server.
-	func DecodeHTTPBalanceOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	func DecodeHTTPGetBalanceOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
 		defer r.Body.Close()
 		var req pb.ChainCodeRequest
 		buf, err := ioutil.ReadAll(r.Body)
@@ -473,13 +471,13 @@ if SignatureBalanceStrArr, ok := queryParams["signature"]; ok {
 		
 			
 				
-if IdBalanceStrArr, ok := queryParams["id"]; ok {
-	IdBalanceStr := IdBalanceStrArr[0]
-	IdBalance, err := strconv.ParseUint(IdBalanceStr, 10, 32)
+if IdGetBalanceStrArr, ok := queryParams["id"]; ok {
+	IdGetBalanceStr := IdGetBalanceStrArr[0]
+	IdGetBalance, err := strconv.ParseUint(IdGetBalanceStr, 10, 32)
 	if err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting IdBalance from query, queryParams: %v", queryParams))
+		return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting IdGetBalance from query, queryParams: %v", queryParams))
 	}
-	req.Id = uint32(IdBalance)
+	req.Id = uint32(IdGetBalance)
 }
 
 
@@ -498,16 +496,16 @@ if TimeStampSendStrArr, ok := queryParams["timeStamp"]; ok && len(TimeStampSendS
 		Nanos:   int32((TimeStampSend % 1000) * 1e6),   // Convert milliseconds to nanoseconds
 	}
 }
-
+			
 		
 			
 				
-if ParamsBalanceStrArr, ok := queryParams["params"]; ok {
-	ParamsBalanceStr := ParamsBalanceStrArr[0]
+if ParamsGetBalanceStrArr, ok := queryParams["params"]; ok {
+	ParamsGetBalanceStr := ParamsGetBalanceStrArr[0]
 
-	err = json.Unmarshal([]byte(ParamsBalanceStr), req.Params)
+	err = json.Unmarshal([]byte(ParamsGetBalanceStr), req.Params)
 	if err != nil {
-		return nil, errors.Wrapf(err, "couldn't decode ParamsBalance from %v", ParamsBalanceStr)
+		return nil, errors.Wrapf(err, "couldn't decode ParamsGetBalance from %v", ParamsGetBalanceStr)
 	}
 
 }
@@ -515,19 +513,19 @@ if ParamsBalanceStrArr, ok := queryParams["params"]; ok {
 		
 			
 				
-if KeyBalanceStrArr, ok := queryParams["key"]; ok {
-	KeyBalanceStr := KeyBalanceStrArr[0]
-	KeyBalance := KeyBalanceStr
-	req.Key = KeyBalance
+if KeyGetBalanceStrArr, ok := queryParams["key"]; ok {
+	KeyGetBalanceStr := KeyGetBalanceStrArr[0]
+	KeyGetBalance := KeyGetBalanceStr
+	req.Key = KeyGetBalance
 }
 			
 		
 			
 				
-if SignatureBalanceStrArr, ok := queryParams["signature"]; ok {
-	SignatureBalanceStr := SignatureBalanceStrArr[0]
-	SignatureBalance := SignatureBalanceStr
-	req.Signature = SignatureBalance
+if SignatureGetBalanceStrArr, ok := queryParams["signature"]; ok {
+	SignatureGetBalanceStr := SignatureGetBalanceStrArr[0]
+	SignatureGetBalance := SignatureGetBalanceStr
+	req.Signature = SignatureGetBalance
 }
 			
 		

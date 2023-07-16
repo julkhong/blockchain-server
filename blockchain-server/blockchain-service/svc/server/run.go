@@ -18,7 +18,6 @@ import (
 
 	// 3d Party
 	"google.golang.org/grpc"
-
 	pb "github.com/julkhong/blockchain/blockchain-server"
 )
 
@@ -52,15 +51,15 @@ func NewEndpoints(service pb.BlockchainServer) svc.Endpoints {
 
 	// Endpoint domain.
 	var (
-		echoEndpoint    = svc.MakeEchoEndpoint(service)
-		sendEndpoint    = svc.MakeSendEndpoint(service)
-		balanceEndpoint = svc.MakeBalanceEndpoint(service)
+		echoEndpoint        = svc.MakeEchoEndpoint(service)
+		sendbalanceEndpoint = svc.MakeSendBalanceEndpoint(service)
+		getbalanceEndpoint  = svc.MakeGetBalanceEndpoint(service)
 	)
 
 	endpoints := svc.Endpoints{
-		EchoEndpoint:    echoEndpoint,
-		SendEndpoint:    sendEndpoint,
-		BalanceEndpoint: balanceEndpoint,
+		EchoEndpoint:        echoEndpoint,
+		SendBalanceEndpoint: sendbalanceEndpoint,
+		GetBalanceEndpoint:  getbalanceEndpoint,
 	}
 
 	// Wrap selected Endpoints with middlewares. See handlers/middlewares.go
