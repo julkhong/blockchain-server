@@ -5,17 +5,35 @@ syntax = "proto3";
 package blockchain;
 
 import "github.com/metaverse/truss/deftree/googlethirdparty/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 service Blockchain {
   // Echo "echos" the incoming string
   rpc Echo (EchoRequest) returns (EchoResponse) {
     option (google.api.http) = {
       // All fields (In) are query parameters of the http request unless otherwise specified
-      get: "/echo"
+      post: "/echo"
 
       additional_bindings {
         // Trailing slashes are different routes
-        get: "/echo/"
+        post: "/echo/"
+      }
+    };
+  }
+  rpc Send (ChainCodeRequest) returns (ChainCodeResponse) {
+    option (google.api.http) = {
+      // All fields (In) are query parameters of the http request unless otherwise specified
+      post: "/send"
+    };
+  }
+  rpc Balance (ChainCodeRequest) returns (ChainCodeResponse) {
+    option (google.api.http) = {
+      // All fields (In) are query parameters of the http request unless otherwise specified
+      get: "/balance"
+
+      additional_bindings {
+        // Trailing slashes are different routes
+        get: "/balance/"
       }
     };
   }
@@ -25,7 +43,27 @@ message EchoRequest {
   string In = 1;
 }
 
-
 message EchoResponse {
   string Out = 1;
+}
+
+message Parameters {
+  string senderID = 1;
+  string receiverID = 2;
+  float amount = 3;
+  string accountID = 4;
+}
+
+message ChainCodeRequest {
+  uint32 id = 1;
+  google.protobuf.Timestamp timeStamp = 2;
+  Parameters params = 3;
+  string key = 4;
+  string signature = 5;
+}
+
+message ChainCodeResponse {
+  string code = 1;
+  uint32 id = 2;
+  float amount = 3;
 }

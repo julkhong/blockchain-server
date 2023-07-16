@@ -35,12 +35,26 @@ func MakeGRPCServer(endpoints Endpoints, options ...grpctransport.ServerOption) 
 			EncodeGRPCEchoResponse,
 			serverOptions...,
 		),
+		send: grpctransport.NewServer(
+			endpoints.SendEndpoint,
+			DecodeGRPCSendRequest,
+			EncodeGRPCSendResponse,
+			serverOptions...,
+		),
+		balance: grpctransport.NewServer(
+			endpoints.BalanceEndpoint,
+			DecodeGRPCBalanceRequest,
+			EncodeGRPCBalanceResponse,
+			serverOptions...,
+		),
 	}
 }
 
 // grpcServer implements the BlockchainServer interface
 type grpcServer struct {
-	echo grpctransport.Handler
+	echo    grpctransport.Handler
+	send    grpctransport.Handler
+	balance grpctransport.Handler
 }
 
 // Methods for grpcServer to implement BlockchainServer interface
@@ -53,6 +67,22 @@ func (s *grpcServer) Echo(ctx context.Context, req *pb.EchoRequest) (*pb.EchoRes
 	return rep.(*pb.EchoResponse), nil
 }
 
+func (s *grpcServer) Send(ctx context.Context, req *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
+	_, rep, err := s.send.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*pb.ChainCodeResponse), nil
+}
+
+func (s *grpcServer) Balance(ctx context.Context, req *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
+	_, rep, err := s.balance.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*pb.ChainCodeResponse), nil
+}
+
 // Server Decode
 
 // DecodeGRPCEchoRequest is a transport/grpc.DecodeRequestFunc that converts a
@@ -62,12 +92,40 @@ func DecodeGRPCEchoRequest(_ context.Context, grpcReq interface{}) (interface{},
 	return req, nil
 }
 
+// DecodeGRPCSendRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC send request to a user-domain send request. Primarily useful in a server.
+func DecodeGRPCSendRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*pb.ChainCodeRequest)
+	return req, nil
+}
+
+// DecodeGRPCBalanceRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC balance request to a user-domain balance request. Primarily useful in a server.
+func DecodeGRPCBalanceRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*pb.ChainCodeRequest)
+	return req, nil
+}
+
 // Server Encode
 
 // EncodeGRPCEchoResponse is a transport/grpc.EncodeResponseFunc that converts a
 // user-domain echo response to a gRPC echo reply. Primarily useful in a server.
 func EncodeGRPCEchoResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(*pb.EchoResponse)
+	return resp, nil
+}
+
+// EncodeGRPCSendResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain send response to a gRPC send reply. Primarily useful in a server.
+func EncodeGRPCSendResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(*pb.ChainCodeResponse)
+	return resp, nil
+}
+
+// EncodeGRPCBalanceResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain balance response to a gRPC balance reply. Primarily useful in a server.
+func EncodeGRPCBalanceResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(*pb.ChainCodeResponse)
 	return resp, nil
 }
 

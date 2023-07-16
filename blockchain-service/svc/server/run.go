@@ -8,6 +8,8 @@ package server
 import (
 	"flag"
 	"fmt"
+	"github.com/julkhong/blockchain-server/blockchain-service/handlers"
+	"github.com/julkhong/blockchain-server/blockchain-service/svc"
 	"log"
 	"net"
 	"net/http"
@@ -17,10 +19,7 @@ import (
 	// 3d Party
 	"google.golang.org/grpc"
 
-	// This Service
 	pb "github.com/julkhong/blockchain-server"
-	"github.com/julkhong/blockchain-server/blockchain-service/handlers"
-	"github.com/julkhong/blockchain-server/blockchain-service/svc"
 )
 
 var DefaultConfig svc.Config
@@ -53,11 +52,15 @@ func NewEndpoints(service pb.BlockchainServer) svc.Endpoints {
 
 	// Endpoint domain.
 	var (
-		echoEndpoint = svc.MakeEchoEndpoint(service)
+		echoEndpoint    = svc.MakeEchoEndpoint(service)
+		sendEndpoint    = svc.MakeSendEndpoint(service)
+		balanceEndpoint = svc.MakeBalanceEndpoint(service)
 	)
 
 	endpoints := svc.Endpoints{
-		EchoEndpoint: echoEndpoint,
+		EchoEndpoint:    echoEndpoint,
+		SendEndpoint:    sendEndpoint,
+		BalanceEndpoint: balanceEndpoint,
 	}
 
 	// Wrap selected Endpoints with middlewares. See handlers/middlewares.go

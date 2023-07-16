@@ -8,6 +8,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/julkhong/blockchain-server/blockchain-service/svc"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -15,9 +16,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	grpctransport "github.com/go-kit/kit/transport/grpc"
 
-	// This Service
 	pb "github.com/julkhong/blockchain-server"
-	"github.com/julkhong/blockchain-server/blockchain-service/svc"
 )
 
 // New returns an service backed by a gRPC client connection. It is the
@@ -49,8 +48,36 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.BlockchainServer, e
 		).Endpoint()
 	}
 
+	var sendEndpoint endpoint.Endpoint
+	{
+		sendEndpoint = grpctransport.NewClient(
+			conn,
+			"blockchain.Blockchain",
+			"Send",
+			EncodeGRPCSendRequest,
+			DecodeGRPCSendResponse,
+			pb.ChainCodeResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
+	var balanceEndpoint endpoint.Endpoint
+	{
+		balanceEndpoint = grpctransport.NewClient(
+			conn,
+			"blockchain.Blockchain",
+			"Balance",
+			EncodeGRPCBalanceRequest,
+			DecodeGRPCBalanceResponse,
+			pb.ChainCodeResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
 	return svc.Endpoints{
-		EchoEndpoint: echoEndpoint,
+		EchoEndpoint:    echoEndpoint,
+		SendEndpoint:    sendEndpoint,
+		BalanceEndpoint: balanceEndpoint,
 	}, nil
 }
 
@@ -63,12 +90,40 @@ func DecodeGRPCEchoResponse(_ context.Context, grpcReply interface{}) (interface
 	return reply, nil
 }
 
+// DecodeGRPCSendResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC send reply to a user-domain send response. Primarily useful in a client.
+func DecodeGRPCSendResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.ChainCodeResponse)
+	return reply, nil
+}
+
+// DecodeGRPCBalanceResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC balance reply to a user-domain balance response. Primarily useful in a client.
+func DecodeGRPCBalanceResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.ChainCodeResponse)
+	return reply, nil
+}
+
 // GRPC Client Encode
 
 // EncodeGRPCEchoRequest is a transport/grpc.EncodeRequestFunc that converts a
 // user-domain echo request to a gRPC echo request. Primarily useful in a client.
 func EncodeGRPCEchoRequest(_ context.Context, request interface{}) (interface{}, error) {
 	req := request.(*pb.EchoRequest)
+	return req, nil
+}
+
+// EncodeGRPCSendRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain send request to a gRPC send request. Primarily useful in a client.
+func EncodeGRPCSendRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.ChainCodeRequest)
+	return req, nil
+}
+
+// EncodeGRPCBalanceRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain balance request to a gRPC balance request. Primarily useful in a client.
+func EncodeGRPCBalanceRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.ChainCodeRequest)
 	return req, nil
 }
 

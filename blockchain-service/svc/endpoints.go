@@ -33,7 +33,9 @@ import (
 // single type that implements the Service interface. For example, you might
 // construct individual endpoints using transport/http.NewClient, combine them into an Endpoints, and return it to the caller as a Service.
 type Endpoints struct {
-	EchoEndpoint endpoint.Endpoint
+	EchoEndpoint    endpoint.Endpoint
+	SendEndpoint    endpoint.Endpoint
+	BalanceEndpoint endpoint.Endpoint
 }
 
 // Endpoints
@@ -44,6 +46,22 @@ func (e Endpoints) Echo(ctx context.Context, in *pb.EchoRequest) (*pb.EchoRespon
 		return nil, err
 	}
 	return response.(*pb.EchoResponse), nil
+}
+
+func (e Endpoints) Send(ctx context.Context, in *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
+	response, err := e.SendEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.ChainCodeResponse), nil
+}
+
+func (e Endpoints) Balance(ctx context.Context, in *pb.ChainCodeRequest) (*pb.ChainCodeResponse, error) {
+	response, err := e.BalanceEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.ChainCodeResponse), nil
 }
 
 // Make Endpoints
@@ -59,6 +77,28 @@ func MakeEchoEndpoint(s pb.BlockchainServer) endpoint.Endpoint {
 	}
 }
 
+func MakeSendEndpoint(s pb.BlockchainServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.ChainCodeRequest)
+		v, err := s.Send(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
+func MakeBalanceEndpoint(s pb.BlockchainServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.ChainCodeRequest)
+		v, err := s.Balance(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
 // WrapAllExcept wraps each Endpoint field of struct Endpoints with a
 // go-kit/kit/endpoint.Middleware.
 // Use this for applying a set of middlewares to every endpoint in the service.
@@ -66,7 +106,9 @@ func MakeEchoEndpoint(s pb.BlockchainServer) endpoint.Endpoint {
 // WrapAllExcept(middleware, "Status", "Ping")
 func (e *Endpoints) WrapAllExcept(middleware endpoint.Middleware, excluded ...string) {
 	included := map[string]struct{}{
-		"Echo": {},
+		"Echo":    {},
+		"Send":    {},
+		"Balance": {},
 	}
 
 	for _, ex := range excluded {
@@ -79,6 +121,12 @@ func (e *Endpoints) WrapAllExcept(middleware endpoint.Middleware, excluded ...st
 	for inc := range included {
 		if inc == "Echo" {
 			e.EchoEndpoint = middleware(e.EchoEndpoint)
+		}
+		if inc == "Send" {
+			e.SendEndpoint = middleware(e.SendEndpoint)
+		}
+		if inc == "Balance" {
+			e.BalanceEndpoint = middleware(e.BalanceEndpoint)
 		}
 	}
 }
@@ -94,7 +142,9 @@ type LabeledMiddleware func(string, endpoint.Endpoint) endpoint.Endpoint
 // functionality.
 func (e *Endpoints) WrapAllLabeledExcept(middleware func(string, endpoint.Endpoint) endpoint.Endpoint, excluded ...string) {
 	included := map[string]struct{}{
-		"Echo": {},
+		"Echo":    {},
+		"Send":    {},
+		"Balance": {},
 	}
 
 	for _, ex := range excluded {
@@ -107,6 +157,12 @@ func (e *Endpoints) WrapAllLabeledExcept(middleware func(string, endpoint.Endpoi
 	for inc := range included {
 		if inc == "Echo" {
 			e.EchoEndpoint = middleware("Echo", e.EchoEndpoint)
+		}
+		if inc == "Send" {
+			e.SendEndpoint = middleware("Send", e.SendEndpoint)
+		}
+		if inc == "Balance" {
+			e.BalanceEndpoint = middleware("Balance", e.BalanceEndpoint)
 		}
 	}
 }

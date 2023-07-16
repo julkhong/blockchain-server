@@ -7,10 +7,9 @@ package main
 
 import (
 	"flag"
-
-	// This Service
 	"github.com/julkhong/blockchain-server/blockchain-service/handlers"
 	"github.com/julkhong/blockchain-server/blockchain-service/svc/server"
+
 )
 
 func main() {

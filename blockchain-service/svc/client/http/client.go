@@ -11,6 +11,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/julkhong/blockchain-server/blockchain-service/svc"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -23,9 +24,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/pkg/errors"
 
-	// This Service
 	pb "github.com/julkhong/blockchain-server"
-	"github.com/julkhong/blockchain-server/blockchain-service/svc"
 )
 
 var (
@@ -54,16 +53,38 @@ func New(instance string, options ...httptransport.ClientOption) (pb.BlockchainS
 	var EchoZeroEndpoint endpoint.Endpoint
 	{
 		EchoZeroEndpoint = httptransport.NewClient(
-			"GET",
+			"POST",
 			copyURL(u, "/echo/"),
 			EncodeHTTPEchoZeroRequest,
 			DecodeHTTPEchoResponse,
 			options...,
 		).Endpoint()
 	}
+	var SendZeroEndpoint endpoint.Endpoint
+	{
+		SendZeroEndpoint = httptransport.NewClient(
+			"POST",
+			copyURL(u, "/send"),
+			EncodeHTTPSendZeroRequest,
+			DecodeHTTPSendResponse,
+			options...,
+		).Endpoint()
+	}
+	var BalanceZeroEndpoint endpoint.Endpoint
+	{
+		BalanceZeroEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/balance/"),
+			EncodeHTTPBalanceZeroRequest,
+			DecodeHTTPBalanceResponse,
+			options...,
+		).Endpoint()
+	}
 
 	return svc.Endpoints{
-		EchoEndpoint: EchoZeroEndpoint,
+		EchoEndpoint:    EchoZeroEndpoint,
+		SendEndpoint:    SendZeroEndpoint,
+		BalanceEndpoint: BalanceZeroEndpoint,
 	}, nil
 }
 
@@ -117,6 +138,60 @@ func DecodeHTTPEchoResponse(_ context.Context, r *http.Response) (interface{}, e
 	return &resp, nil
 }
 
+// DecodeHTTPSendResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded ChainCodeResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPSendResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.ChainCodeResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
+// DecodeHTTPBalanceResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded ChainCodeResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPBalanceResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.ChainCodeResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
 // HTTP Client Encode
 
 // EncodeHTTPEchoZeroRequest is a transport/http.EncodeRequestFunc
@@ -152,6 +227,15 @@ func EncodeHTTPEchoZeroRequest(_ context.Context, r *http.Request, request inter
 	values.Add("In", fmt.Sprint(req.In))
 
 	r.URL.RawQuery = values.Encode()
+	// Set the body parameters
+	var buf bytes.Buffer
+	toRet := request.(*pb.EchoRequest)
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(toRet); err != nil {
+		return errors.Wrapf(err, "couldn't encode body as json %v", toRet)
+	}
+	r.Body = ioutil.NopCloser(&buf)
 	return nil
 }
 
@@ -185,6 +269,169 @@ func EncodeHTTPEchoOneRequest(_ context.Context, r *http.Request, request interf
 	_ = tmp
 
 	values.Add("In", fmt.Sprint(req.In))
+
+	r.URL.RawQuery = values.Encode()
+	// Set the body parameters
+	var buf bytes.Buffer
+	toRet := request.(*pb.EchoRequest)
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(toRet); err != nil {
+		return errors.Wrapf(err, "couldn't encode body as json %v", toRet)
+	}
+	r.Body = ioutil.NopCloser(&buf)
+	return nil
+}
+
+// EncodeHTTPSendZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a send request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPSendZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.ChainCodeRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"send",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("id", fmt.Sprint(req.Id))
+
+	values.Add("timeStamp", fmt.Sprint(req.TimeStamp))
+
+	tmp, err = json.Marshal(req.Params)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal req.Params")
+	}
+	strval = string(tmp)
+	values.Add("params", strval)
+
+	values.Add("key", fmt.Sprint(req.Key))
+
+	values.Add("signature", fmt.Sprint(req.Signature))
+
+	r.URL.RawQuery = values.Encode()
+	// Set the body parameters
+	var buf bytes.Buffer
+	toRet := request.(*pb.ChainCodeRequest)
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(toRet); err != nil {
+		return errors.Wrapf(err, "couldn't encode body as json %v", toRet)
+	}
+	r.Body = ioutil.NopCloser(&buf)
+	return nil
+}
+
+// EncodeHTTPBalanceZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a balance request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPBalanceZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.ChainCodeRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"balance",
+		"",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("id", fmt.Sprint(req.Id))
+
+	values.Add("timeStamp", fmt.Sprint(req.TimeStamp))
+
+	tmp, err = json.Marshal(req.Params)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal req.Params")
+	}
+	strval = string(tmp)
+	values.Add("params", strval)
+
+	values.Add("key", fmt.Sprint(req.Key))
+
+	values.Add("signature", fmt.Sprint(req.Signature))
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPBalanceOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a balance request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPBalanceOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.ChainCodeRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"balance",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("id", fmt.Sprint(req.Id))
+
+	values.Add("timeStamp", fmt.Sprint(req.TimeStamp))
+
+	tmp, err = json.Marshal(req.Params)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal req.Params")
+	}
+	strval = string(tmp)
+	values.Add("params", strval)
+
+	values.Add("key", fmt.Sprint(req.Key))
+
+	values.Add("signature", fmt.Sprint(req.Signature))
 
 	r.URL.RawQuery = values.Encode()
 	return nil
