@@ -19,15 +19,15 @@ func BenchmarkSend(b *testing.B) {
 	}
 
 	// Initialize the contract
-	accountA, err := contract.Init(ctx, testPublicKey, 10000000000000)
+	accountA, err := contract.InitM(ctx, testPublicKey, 10000000000000)
 	require.NoError(b, err)
-	accountB, err := contract.Init(ctx, testPublicKey, 10000000000000)
+	accountB, err := contract.InitM(ctx, testPublicKey, 10000000000000)
 	require.NoError(b, err)
 
 	// Perform the benchmarking
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		err = contract.Send(ctx, accountA, accountB, 1)
+		err = contract.SendM(ctx, accountA, accountB, 1)
 		require.NoError(b, err)
 	}
 }
@@ -42,7 +42,7 @@ func BenchmarkGetBalance(b *testing.B) {
 		Contract:      contract,
 	}
 	// Initialize the contract
-	accountA, err := contract.Init(ctx, testPublicKey, 100)
+	accountA, err := contract.InitM(ctx, testPublicKey, 100)
 	require.NoError(b, err)
 	expectedRes := &Account{
 		ID:        accountA,
@@ -52,7 +52,7 @@ func BenchmarkGetBalance(b *testing.B) {
 	// Perform the benchmarking
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		res, getBalanceErr := contract.GetBalance(ctx, accountA)
+		res, getBalanceErr := contract.GetBalanceM(ctx, accountA)
 		require.NoError(b, getBalanceErr)
 		require.Equal(b, res, expectedRes.Balance)
 	}

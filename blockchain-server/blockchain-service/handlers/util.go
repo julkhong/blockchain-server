@@ -33,17 +33,18 @@ func generateKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
 //	}
 //}
 
-func generateSignature(id int, timestamp int64, params []float64, key string, privateKey *rsa.PrivateKey) string {
-	str := fmt.Sprintf("%d%d", id, timestamp)
-	for _, param := range params {
-		str += fmt.Sprintf("%f", param)
-	}
-	str += key
-
-	hash := sha256.Sum256([]byte(str))
-	signature, _ := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hash[:])
-	return base64.StdEncoding.EncodeToString(signature)
-}
+//func GenerateSignature(id int, timestamp int64, params []float64, key string, privateKey *rsa.PrivateKey) string {
+//	str := fmt.Sprintf("%d%d", id, timestamp)
+//	for _, param := range params {
+//		str += fmt.Sprintf("%f", param)
+//	}
+//	str += key
+//
+//	hash := sha256.Sum256([]byte(str))
+//	signature, _ := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hash[:]
+//	log.WithFields(log.Fields{"id": id, "params":params, "key":key, "privateKey": privateKey, "signature":base64.StdEncoding.EncodeToString(signature)}).Info("New Signature")
+//	return base64.StdEncoding.EncodeToString(signature)
+//}
 
 func validateSignature(request *pb.ChainCodeRequest, params map[string]interface{}) bool {
 	// Decode the PEM-encoded string to obtain the DER-encoded bytes

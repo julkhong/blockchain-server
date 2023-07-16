@@ -1,57 +1,61 @@
 package chaincode
 
-// type ContractInterface interface {
-// 	Send(ctx TransactionContextInterface, senderID string, receiverID string, amount uint64) error
-// 	GetBalance(ctx TransactionContextInterface, accountID string) (uint64, error)
-// }
+import (
+	"github.com/pkg/errors"
+)
 
-// type TransactionContextInterface interface {
-// 	GetStub() StubInterface
-// 	GetTransactionID() string
-// 	GetChannelID() string
-// 	GetContract() ContractInterface
-// }
+type ContractInterface interface {
+	SendM(ctx TransactionContextInterface, senderID string, receiverID string, amount uint64) error
+	GetBalanceM(ctx TransactionContextInterface, accountID string) (uint64, error)
+}
 
-// type StubInterface interface {
-// 	GetState(key string) ([]byte, error)
-// 	PutState(key string, value []byte) error
-// }
+type TransactionContextInterface interface {
+	GetStub() StubInterface
+	GetTransactionID() string
+	GetChannelID() string
+	GetContract() ContractInterface
+}
 
-// type MockTransactionContext struct {
-// 	Stub          *MockStub
-// 	TransactionID string
-// 	ChannelID     string
-// 	Contract      ContractInterface
-// }
+type StubInterface interface {
+	GetState(key string) ([]byte, error)
+	PutState(key string, value []byte) error
+}
 
-// func (ctx *MockTransactionContext) GetStub() StubInterface {
-// 	return ctx.Stub
-// }
+type MockTransactionContext struct {
+	Stub          *MockStub
+	TransactionID string
+	ChannelID     string
+	Contract      ContractInterface
+}
 
-// func (ctx *MockTransactionContext) GetTransactionID() string {
-// 	return ctx.TransactionID
-// }
+func (ctx *MockTransactionContext) GetStub() StubInterface {
+	return ctx.Stub
+}
 
-// func (ctx *MockTransactionContext) GetChannelID() string {
-// 	return ctx.ChannelID
-// }
+func (ctx *MockTransactionContext) GetTransactionID() string {
+	return ctx.TransactionID
+}
 
-// func (ctx *MockTransactionContext) GetContract() ContractInterface {
-// 	return ctx.Contract
-// }
+func (ctx *MockTransactionContext) GetChannelID() string {
+	return ctx.ChannelID
+}
 
-// type MockStub struct {
-// 	StateMap map[string][]byte
-// }
+func (ctx *MockTransactionContext) GetContract() ContractInterface {
+	return ctx.Contract
+}
 
-// func (stub *MockStub) GetState(key string) ([]byte, error) {
-// 	if val, ok := stub.StateMap[key]; ok {
-// 		return val, nil
-// 	}
-// 	return nil, errors.New("")
-// }
+type MockStub struct {
+	StateMap map[string][]byte
+}
 
-// func (stub *MockStub) PutState(key string, value []byte) error {
-// 	stub.StateMap[key] = value
-// 	return nil
-// }
+func (stub *MockStub) GetState(key string) ([]byte, error) {
+	if val, ok := stub.StateMap[key]; ok {
+		return val, nil
+	}
+	return nil, errors.New("")
+}
+
+func (stub *MockStub) PutState(key string, value []byte) error {
+	stub.StateMap[key] = value
+	return nil
+}
