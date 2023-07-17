@@ -18,33 +18,18 @@ func generateKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
 	return privateKey, &privateKey.PublicKey
 }
 
-//func createRequest(id int, fromID, toID string, amount float64, privateKey *rsa.PrivateKey) Request {
-//	timestamp := time.Now().UnixNano() / int64(time.Millisecond)
-//	params := []float64{amount}
-//	key := base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(&privateKey.PublicKey))
-//	signature := generateSignature(id, timestamp, params, key, privateKey)
-//
-//	return Request{
-//		ID:        id,
-//		Timestamp: timestamp,
-//		Params:    params,
-//		Key:       key,
-//		Signature: signature,
-//	}
-//}
+func GenerateSignature(id int, timestamp int64, params []float64, key string, privateKey *rsa.PrivateKey) string {
+	str := fmt.Sprintf("%d%d", id, timestamp)
+	for _, param := range params {
+		str += fmt.Sprintf("%f", param)
+	}
+	str += key
 
-//func GenerateSignature(id int, timestamp int64, params []float64, key string, privateKey *rsa.PrivateKey) string {
-//	str := fmt.Sprintf("%d%d", id, timestamp)
-//	for _, param := range params {
-//		str += fmt.Sprintf("%f", param)
-//	}
-//	str += key
-//
-//	hash := sha256.Sum256([]byte(str))
-//	signature, _ := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hash[:]
-//	log.WithFields(log.Fields{"id": id, "params":params, "key":key, "privateKey": privateKey, "signature":base64.StdEncoding.EncodeToString(signature)}).Info("New Signature")
-//	return base64.StdEncoding.EncodeToString(signature)
-//}
+	hash := sha256.Sum256([]byte(str))
+	signature, _ := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hash[:])
+	log.WithFields(log.Fields{"id": id, "params": params, "key": key, "privateKey": privateKey, "signature": base64.StdEncoding.EncodeToString(signature)}).Info("New Signature")
+	return base64.StdEncoding.EncodeToString(signature)
+}
 
 func validateSignature(request *pb.ChainCodeRequest, params map[string]interface{}) bool {
 	// Decode the PEM-encoded string to obtain the DER-encoded bytes
@@ -84,7 +69,7 @@ func validateSignature(request *pb.ChainCodeRequest, params map[string]interface
 }
 
 func validateChainCodeRequest(request *pb.ChainCodeRequest) bool {
-	var params map[string]interface{}
+	params := make(map[string]interface{})
 	if request.Id == 0 || request.TimeStamp == nil || request.Params == nil || request.Key == "" || request.Signature == "" {
 		log.WithFields(log.Fields{"request": request}).Error("Bad request from client")
 		return false

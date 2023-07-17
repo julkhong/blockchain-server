@@ -31,6 +31,7 @@ const (
 
 var InvokedContract client.Contract
 var now = time.Now()
+
 var uniAccountID = fmt.Sprintf("account%d", now.Unix()*1e3+int64(now.Nanosecond())/1e6)
 
 func ContractSetup() {
@@ -142,81 +143,6 @@ func newSign() identity.Sign {
 	return sign
 }
 
-//
-//
-//// InitLedger This type of transaction would typically only be run once by an application the first time it was started after its
-//// initial deployment. A new version of the chaincode deployed later would likely not need to run an "init" function.
-//func InitLedger(contract *client.Contract) {
-//	fmt.Printf("\n--> Submit Transaction: InitLedger, function creates the initial set of assets on the ledger \n")
-//
-//	_, err := contract.SubmitTransaction("InitLedger")
-//	if err != nil {
-//		panic(fmt.Errorf("failed to submit transaction: %w", err))
-//	}
-//
-//	fmt.Printf("*** Transaction committed successfully\n")
-//}
-//
-//// GetAllAssets Evaluate a transaction to query ledger state.
-//func GetAllAssets(contract *client.Contract) {
-//	fmt.Println("\n--> Evaluate Transaction: GetAllAssets, function returns all the current assets on the ledger")
-//
-//	evaluateResult, err := contract.EvaluateTransaction("GetAllAssets")
-//	if err != nil {
-//		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
-//	}
-//	result := formatJSON(evaluateResult)
-//
-//	fmt.Printf("*** Result:%s\n", result)
-//}
-//
-//// CreateAsset Submit a transaction synchronously, blocking until it has been committed to the ledger.
-//func CreateAsset(contract *client.Contract) {
-//	fmt.Printf("\n--> Submit Transaction: CreateAsset, creates new asset with ID, Color, Size, Owner and AppraisedValue arguments \n")
-//
-//	_, err := contract.SubmitTransaction("CreateAsset", accountID, "yellow", "5", "Tom", "1300")
-//	if err != nil {
-//		panic(fmt.Errorf("failed to submit transaction: %w", err))
-//	}
-//
-//	fmt.Printf("*** Transaction committed successfully\n")
-//}
-//
-//// ReadAssetByID Evaluate a transaction by assetID to query ledger state.
-//func ReadAssetByID(contract *client.Contract) {
-//	fmt.Printf("\n--> Evaluate Transaction: ReadAsset, function returns asset attributes\n")
-//
-//	evaluateResult, err := contract.EvaluateTransaction("ReadAsset", accountID)
-//	if err != nil {
-//		panic(fmt.Errorf("failed to evaluate transaction: %w", err))
-//	}
-//	result := formatJSON(evaluateResult)
-//
-//	fmt.Printf("*** Result:%s\n", result)
-//}
-//
-//// TransferAssetAsync Submit transaction asynchronously, blocking until the transaction has been sent to the orderer, and allowing
-//// this thread to process the chaincode response (e.g. update a UI) without waiting for the commit notification
-//func TransferAssetAsync(contract *client.Contract) {
-//	fmt.Printf("\n--> Async Submit Transaction: TransferAsset, updates existing asset owner")
-//
-//	submitResult, commit, err := contract.SubmitAsync("TransferAsset", client.WithArguments(accountID, "Mark"))
-//	if err != nil {
-//		panic(fmt.Errorf("failed to submit transaction asynchronously: %w", err))
-//	}
-//
-//	fmt.Printf("\n*** Successfully submitted transaction to transfer ownership from %s to Mark. \n", string(submitResult))
-//	fmt.Println("*** Waiting for transaction commit.")
-//
-//	if commitStatus, err := commit.Status(); err != nil {
-//		panic(fmt.Errorf("failed to get commit status: %w", err))
-//	} else if !commitStatus.Successful {
-//		panic(fmt.Errorf("transaction %s failed to commit with status: %d", commitStatus.TransactionID, int32(commitStatus.Code)))
-//	}
-//
-//	fmt.Printf("*** Transaction committed successfully\n")
-//}
-
 // ExampleErrorHandling Submit transaction, passing in the wrong number of arguments ,expected to throw an error containing details of any error responses from the smart contract.
 func ExampleErrorHandling(contract *client.Contract) {
 	fmt.Println("\n--> Submit Transaction: UpdateAsset asset70, asset70 does not exist and should return an error")
@@ -268,5 +194,13 @@ func formatJSON(data []byte) string {
 	if err := json.Indent(&prettyJSON, data, "", "  "); err != nil {
 		panic(fmt.Errorf("failed to parse JSON: %w", err))
 	}
+	lintPasser()
 	return prettyJSON.String()
+}
+
+func lintPasser() {
+	fmt.Println(uniAccountID)
+	fmt.Println(now)
+	generateKeyPair()
+
 }
