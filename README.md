@@ -60,4 +60,5 @@ Feel free to send me an email!
     - API spec
     - Steps to run the project
     - Sequence diagram for the flows
-    - more
+    - Build CI/CD pipeline
+    - More
