@@ -6,8 +6,9 @@ A backend server that interacts with smart contract (hyperledege fabric with Gol
 ![tech_spec drawio](https://github.com/julkhong/blockchain-server/assets/70477671/3ebbc8bc-b508-4463-a54c-4ce49e375a5f)
 
 ## Tech/framework used
-Windows: VsCode, Ubuntu for cli, Docker
-Mac: Goland
+Windows: VsCode, Ubuntu for cli, Docker, hyperledger fabric test net 
+
+Mac: Goland, zsh 
 
 ## Features
 The repo consists of two separate core functions. 
@@ -46,9 +47,17 @@ https://hyperledger-fabric.readthedocs.io/en/latest/getting_started.html
 
 ## Tests
 - Smart contract includes units tests and benchmarking test
+- All the codes have passed lint checks
 
 
 ## Contact
 Created by Jun Ming Khong (Julian). 
 Feel free to send me an email!
  officialkhong@gmail.com 
+
+## TODO
+1) To complete the documentation, that includes:
+    - API spec
+    - Steps to run the project
+    - Sequence diagram for the flows
+    - more
